@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐱 한자 나라 - 7급 한자 공부</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky:    #89C4E1;   /* 하늘 파스텔 */
+      --mint:   #8ED9C0;   /* 민트 파스텔 */
+      --lav:    #B5A8DC;   /* 라벤더 */
+      --lavlt:  #D6CFEF;   /* 연한 라벤더 */
+      --skylt:  #C8E8F5;   /* 연한 하늘 */
+      --mintlt: #C3EDE0;   /* 연한 민트 */
+      --bg:     #EFF7FD;   /* 구름빛 배경 */
+      --text:   #4A5568;
+      --textmd: #718096;
+      --white:  #FFFFFF;
+    }
+
+    /* ── 구름 느낌 배경 ── */
+    body {
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(ellipse 300px 180px at 10% 8%,  rgba(255,255,255,.75) 0%, transparent 70%),
+        radial-gradient(ellipse 220px 130px at 85% 5%,  rgba(200,232,255,.55) 0%, transparent 70%),
+        radial-gradient(ellipse 180px 110px at 55% 15%, rgba(214,207,239,.40) 0%, transparent 70%),
+        radial-gradient(ellipse 260px 150px at 30% 90%, rgba(196,237,224,.40) 0%, transparent 70%);
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #8ABFE0 0%, #AAD4E8 40%, #C3B5E8 100%);
+      color: white;
+      padding: 28px 20px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    /* 헤더 아래쪽 구름 물결 */
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 44px;
+      background: var(--bg);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+    /* 헤더 안 장식 구름들 */
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 10px; left: -30px;
+      width: 160px; height: 70px;
+      background: rgba(255,255,255,.18);
+      border-radius: 50px;
+      box-shadow:
+        50px 10px 0 20px rgba(255,255,255,.12),
+        120px -5px 0 10px rgba(255,255,255,.10),
+        260px 8px 0 25px rgba(255,255,255,.14),
+        400px -4px 0 14px rgba(255,255,255,.10),
+        550px 12px 0 20px rgba(255,255,255,.12);
+    }
+    .header h1 { font-size: 2em; margin-bottom: 5px; text-shadow: 0 2px 8px rgba(100,140,200,.3); position: relative; z-index: 1; }
+    .header p  { font-size: 1em; opacity: .88; position: relative; z-index: 1; }
+
+    /* ── Nav ── */
+    .nav {
+      display: flex;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 3px 14px rgba(137,196,225,.22);
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-btn {
+      padding: 14px 22px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      color: #b0c4d4;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: all .25s;
+      font-family: inherit;
+    }
+    .nav-btn.active { color: var(--sky); border-bottom-color: var(--sky); }
+
+    /* ── Content ── */
+    .content { max-width: 920px; margin: 0 auto; padding: 26px 16px 40px; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Grade selector ── */
+    .grade-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .grade-btn {
+      padding: 9px 24px;
+      border-radius: 30px;
+      border: 2px solid var(--skylt);
+      background: white;
+      cursor: pointer;
+      font-size: .92em;
+      font-weight: bold;
+      color: var(--textmd);
+      transition: all .25s;
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(137,196,225,.15);
+    }
+    .grade-btn.active {
+      background: linear-gradient(135deg, var(--sky), var(--lav));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(137,196,225,.38);
+    }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 1.25em;
+      font-weight: bold;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+    .count-badge {
+      background: linear-gradient(135deg, var(--sky), var(--lav));
+      color: white;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: .66em;
+    }
+
+    /* ── Hanja grid ── */
+    .hanja-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 11px;
+    }
+    .hanja-card-mini {
+      background: white;
+      border-radius: 20px;
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(137,196,225,.18);
+      border: 2px solid transparent;
+      transition: all .28s;
+    }
+    .hanja-card-mini:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 10px 26px rgba(137,196,225,.32);
+      border-color: var(--skylt);
+      background: linear-gradient(145deg, #fff, #f0f8ff);
+    }
+    .hanja-char-mini    { font-size: 2.1em; display: block; margin-bottom: 5px; }
+    .hanja-reading-mini { font-size: .75em; color: var(--sky); font-weight: bold; }
+    .hanja-meaning-mini { font-size: .67em; color: #b0c0cc; margin-top: 2px; }
+
+    /* ── Theme filter ── */
+    .theme-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .theme-btn {
+      padding: 7px 15px;
+      border-radius: 22px;
+      border: none;
+      background: rgba(255,255,255,.75);
+      box-shadow: 0 2px 8px rgba(137,196,225,.15);
+      cursor: pointer;
+      font-size: .84em;
+      font-family: inherit;
+      color: var(--textmd);
+      transition: all .25s;
+    }
+    .theme-btn.active {
+      background: linear-gradient(135deg, var(--mint), var(--sky));
+      color: white;
+      box-shadow: 0 3px 10px rgba(142,217,192,.35);
+    }
+
+    /* ── Study cards ── */
+    .study-card {
+      background: white;
+      border-radius: 24px;
+      padding: 22px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 5px 20px rgba(137,196,225,.16);
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: all .28s;
+      border: 1.5px solid rgba(200,232,255,.6);
+    }
+    .study-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(137,196,225,.28);
+      border-color: var(--skylt);
+    }
+    .study-char {
+      font-size: 3.6em;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--sky), var(--lav));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      min-width: 88px;
+      text-align: center;
+      padding-top: 2px;
+    }
+    .study-info { flex: 1; min-width: 0; }
+    .study-reading { font-size: 1.35em; font-weight: bold; color: var(--sky); margin-bottom: 4px; }
+    .study-meaning { font-size: 1.05em; color: var(--textmd); margin-bottom: 13px; }
+    .study-examples {
+      background: linear-gradient(135deg, #f4fbff, #f0f8f5);
+      border-radius: 14px;
+      padding: 11px 14px;
+      border: 1px solid rgba(200,232,255,.5);
+    }
+    .study-examples-title { font-size: .76em; color: #b0c8d8; margin-bottom: 6px; font-weight: bold; letter-spacing: .04em; }
+    .example-item         { font-size: .91em; color: var(--text); padding: 3px 0; line-height: 1.65; }
+    .example-word         { font-weight: bold; color: var(--mint); }
+
+    /* ── Modal ── */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(100,140,190,.35);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 30px;
+      padding: 36px 28px 26px;
+      max-width: 400px;
+      width: 92%;
+      text-align: center;
+      animation: pop .32s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 16px 50px rgba(137,196,225,.35);
+      border: 1.5px solid rgba(200,232,255,.6);
+    }
+    @keyframes pop {
+      from { transform: scale(.82) translateY(10px); opacity: 0; }
+      to   { transform: scale(1)   translateY(0);    opacity: 1; }
+    }
+    .modal-char    { font-size: 5.5em; margin: 6px 0;
+                     background: linear-gradient(135deg, var(--sky), var(--lav));
+                     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .modal-reading { font-size: 1.6em; font-weight: bold; color: var(--sky); }
+    .modal-meaning { font-size: 1.15em; color: var(--textmd); margin: 8px 0 16px; }
+    .modal-examples {
+      background: linear-gradient(135deg, #f4fbff, #f0f8f5);
+      border-radius: 14px;
+      padding: 13px;
+      text-align: left;
+      margin-bottom: 18px;
+      border: 1px solid rgba(200,232,255,.5);
+    }
+    .modal-close {
+      background: linear-gradient(135deg, var(--sky), var(--lav));
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 11px 30px;
+      font-size: 1em;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(137,196,225,.38);
+      transition: transform .2s;
+    }
+    .modal-close:hover { transform: scale(1.05); }
+
+    /* ── Quiz ── */
+    .quiz-container { max-width: 580px; margin: 0 auto; }
+    .quiz-setup, .quiz-result { text-align: center; padding: 20px 0; }
+
+    .quiz-grade-row {
+      display: flex;
+      gap: 9px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 13px 0;
+    }
+    .qg-btn {
+      padding: 8px 17px;
+      border-radius: 22px;
+      border: 2px solid var(--skylt);
+      background: white;
+      cursor: pointer;
+      font-size: .88em;
+      font-family: inherit;
+      color: var(--textmd);
+      transition: all .25s;
+      box-shadow: 0 2px 8px rgba(137,196,225,.14);
+    }
+    .qg-btn.active {
+      background: linear-gradient(135deg, var(--sky), var(--lav));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(137,196,225,.36);
+    }
+
+    .quiz-start {
+      background: linear-gradient(135deg, var(--sky), var(--lav));
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 15px 46px;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin: 24px auto;
+      display: inline-block;
+      box-shadow: 0 6px 20px rgba(137,196,225,.42);
+      font-family: inherit;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .quiz-start:hover { transform: scale(1.06); box-shadow: 0 8px 26px rgba(137,196,225,.52); }
+
+    .progress-bar {
+      background: rgba(200,232,255,.4);
+      border-radius: 10px;
+      height: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, var(--sky), var(--mint));
+      height: 100%;
+      border-radius: 10px;
+      transition: width .5s ease;
+    }
+    .score-display { font-size: .87em; color: var(--textmd); margin-bottom: 18px; }
+
+    .quiz-card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 6px 26px rgba(137,196,225,.2);
+      margin-bottom: 16px;
+      border: 1.5px solid rgba(200,232,255,.55);
+    }
+    .quiz-type-label { font-size: .8em; color: #c0d0dc; margin-bottom: 6px; letter-spacing: .04em; }
+    /* 퀴즈 한자 크기 ↓ */
+    .quiz-char    { font-size: 3em; line-height: 1.25; margin: 4px 0; white-space: pre-line; color: var(--text); }
+    .quiz-prompt  { font-size: 1em; color: var(--textmd); margin-bottom: 20px; }
+
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quiz-option {
+      padding: 13px 10px;
+      border: 2px solid rgba(200,232,255,.7);
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: .97em;
+      background: white;
+      font-family: inherit;
+      color: var(--text);
+      transition: all .2s;
+    }
+    .quiz-option:hover:not(:disabled) {
+      border-color: var(--skylt);
+      background: linear-gradient(145deg, #f0f8ff, #f5f0ff);
+    }
+    .quiz-option.correct {
+      border-color: var(--mint);
+      background: linear-gradient(145deg, #eafaf5, #f0fbf7);
+      color: #3aaa80;
+      font-weight: bold;
+    }
+    .quiz-option.wrong {
+      border-color: #f4b8c4;
+      background: #fff0f3;
+      color: #e07090;
+    }
+    /* 한자 찾기 옵션은 살짝만 크게 */
+    .quiz-option.char-opt { font-size: 1.45em; padding: 14px; }
+
+    .quiz-feedback { font-size: 1.2em; margin: 14px 0; min-height: 34px; }
+    .quiz-next-btn {
+      background: linear-gradient(135deg, var(--mint), var(--sky));
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 32px;
+      font-size: .97em;
+      cursor: pointer;
+      display: none;
+      margin: 6px auto;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(142,217,192,.38);
+      transition: transform .2s;
+    }
+    .quiz-next-btn:hover { transform: scale(1.05); }
+
+    .result-score { font-size: 2.8em; color: var(--sky); font-weight: bold; margin: 10px 0; }
+    .result-stars { font-size: 2.3em; margin: 8px 0; }
+    .result-msg   { font-size: 1.2em; color: var(--textmd); margin: 8px 0 18px; }
+
+    /* ── Animations ── */
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes shake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+    .anim-bounce { animation: bounce .5s ease; }
+    .anim-shake  { animation: shake .45s ease; }
+
+    /* ── Responsive ── */
+    @media (max-width: 560px) {
+      .study-card   { flex-direction: column; align-items: center; text-align: center; }
+      .quiz-options { grid-template-columns: 1fr; }
+      .hanja-grid   { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); }
+    }
+
+    .empty-msg { text-align: center; color: #c0d0dc; padding: 40px 0; font-size: 1.05em; }
+
+    /* ── 획순 섹션 ── */
+    .stroke-section {
+      margin: 12px 0 14px;
+      text-align: center;
+    }
+    .stroke-title {
+      font-size: .76em;
+      color: #b0c8d8;
+      font-weight: bold;
+      letter-spacing: .05em;
+      margin-bottom: 10px;
+    }
+    /* 획순 가로 스크롤 래퍼 */
+    .stroke-row-wrap {
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .stroke-row {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 5px 3px;
+      justify-content: center;
+      align-items: flex-end;
+      padding: 4px 2px;
+    }
+    /* 획 하나씩 묶음 */
+    .stroke-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .stroke-step svg {
+      display: block;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f2f9ff, #f6f2ff);
+      box-shadow: 0 2px 8px rgba(137,196,225,.18);
+    }
+    .stroke-step-label {
+      font-size: .62em;
+      color: #b8ceda;
+      line-height: 1;
+    }
+    /* 획 사이 화살표 */
+    .stroke-arrow {
+      color: #c8dce8;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      padding-bottom: 16px; /* SVG와 세로 중앙 맞춤 */
+      flex-shrink: 0;
+    }
+    /* 에러/로딩 메시지 */
+    .stroke-msg {
+      color: #c0d8e8;
+      font-size: .82em;
+      padding: 16px 0;
+    }
+    /* 획순 구분선 */
+    .modal-divider {
+      border: none;
+      border-top: 1.5px solid rgba(200,232,255,.5);
+      margin: 4px 0 14px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <h1>🐱 한자 나라</h1>
+  <p>8급 · 7급 한자 즐겁게 공부해요!</p>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <button class="nav-btn active" data-sec="list"  onclick="showSection('list',this)">📋 한자 목록</button>
+  <button class="nav-btn"        data-sec="study" onclick="showSection('study',this)">📖 주제별 학습</button>
+  <button class="nav-btn"        data-sec="quiz"  onclick="showSection('quiz',this)">🎯 퀴즈</button>
+</nav>
+
+<div class="content">
+
+  <!-- ══════════════ LIST ══════════════ -->
+  <div class="section active" id="section-list">
+    <div class="grade-selector">
+      <button class="grade-btn active" onclick="switchListGrade(0,this)">☁️ 전체 (150자)</button>
+      <button class="grade-btn"        onclick="switchListGrade(8,this)">🌤️ 8급 (50자)</button>
+      <button class="grade-btn"        onclick="switchListGrade(7,this)">🫧 7급 (100자)</button>
+    </div>
+    <div class="section-title">
+      한자 전체 보기
+      <span class="count-badge" id="list-count">150자</span>
+    </div>
+    <div class="hanja-grid" id="hanja-grid"></div>
+  </div>
+
+  <!-- ══════════════ STUDY ══════════════ -->
+  <div class="section" id="section-study">
+    <div class="grade-selector">
+      <button class="grade-btn active" onclick="switchStudyGrade(0,this)">☁️ 전체</button>
+      <button class="grade-btn"        onclick="switchStudyGrade(8,this)">🌤️ 8급</button>
+      <button class="grade-btn"        onclick="switchStudyGrade(7,this)">🫧 7급</button>
+    </div>
+    <div class="theme-filter" id="theme-filter"></div>
+    <div id="study-cards"></div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="section" id="section-quiz">
+    <div class="quiz-container">
+
+      <!-- Setup -->
+      <div id="quiz-setup">
+        <div style="font-size:3.8em">🎯</div>
+        <h2 style="margin:14px 0 6px">퀴즈 풀기</h2>
+        <p style="color:#999;font-size:.95em">어떤 한자를 공부할까요?</p>
+
+        <p style="margin:20px 0 6px;font-weight:bold;color:#555">📚 급수 선택</p>
+        <div class="quiz-grade-row" id="qg-grade-row">
+          <button class="qg-btn active" onclick="pickGrade(8,this)">🌤️ 8급</button>
+          <button class="qg-btn"        onclick="pickGrade(7,this)">🫧 7급 추가</button>
+          <button class="qg-btn"        onclick="pickGrade(0,this)">☁️ 전체 다</button>
+        </div>
+
+        <p style="margin:16px 0 6px;font-weight:bold;color:#555">🎮 퀴즈 유형</p>
+        <div class="quiz-grade-row" id="qg-type-row">
+          <button class="qg-btn active" onclick="pickType('reading',this)">🔤 음 맞추기</button>
+          <button class="qg-btn"        onclick="pickType('meaning',this)">💡 뜻 맞추기</button>
+          <button class="qg-btn"        onclick="pickType('char',this)">🀄 한자 찾기</button>
+          <button class="qg-btn"        onclick="pickType('mixed',this)">🎲 랜덤 섞기</button>
+        </div>
+
+        <button class="quiz-start" onclick="startQuiz()">퀴즈 시작! 🚀</button>
+      </div>
+
+      <!-- Quiz area -->
+      <div id="quiz-area" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="score-display">
+          <span id="q-num">1</span> / <span id="q-total">10</span> 번째 문제 &nbsp;|&nbsp; ⭐ <span id="q-score">0</span>점
+        </div>
+
+        <div class="quiz-card">
+          <div class="quiz-type-label" id="q-type-label"></div>
+          <div class="quiz-char"       id="q-char"></div>
+          <div class="quiz-prompt"     id="q-prompt"></div>
+          <div class="quiz-options"    id="q-options"></div>
+          <div class="quiz-feedback"   id="q-feedback"></div>
+          <button class="quiz-next-btn" id="q-next" onclick="nextQ()">다음 문제 →</button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="quiz-result" style="display:none">
+        <div style="font-size:4em">🎉</div>
+        <div class="result-score" id="res-score"></div>
+        <div class="result-stars" id="res-stars"></div>
+        <div class="result-msg"   id="res-msg"></div>
+        <button class="quiz-start" onclick="resetQuiz()">다시 도전!</button>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- content -->
+
+<!-- ── MODAL ── -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <div class="modal-char"    id="m-char"></div>
+    <div class="modal-reading" id="m-reading"></div>
+    <div class="modal-meaning" id="m-meaning"></div>
+    <hr class="modal-divider">
+    <!-- 획순 -->
+    <div class="stroke-section">
+      <div class="stroke-title">✏️ 획순 — 쓰는 순서</div>
+      <div class="stroke-row-wrap">
+        <div id="stroke-target"></div>
+      </div>
+    </div>
+    <hr class="modal-divider">
+    <div class="modal-examples" id="m-examples"></div>
+    <button class="modal-close" onclick="closeModal()">✕ 닫기</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+
+const G8 = [
+  // ── 숫자 ──
+  {char:'一',rd:'일',mn:'한 일',  si:'하나, 첫 번째',         th:'숫자', ex:[{w:'一日',r:'일일',m:'하루'},{w:'一月',r:'일월',m:'1월'}]},
+  {char:'二',rd:'이',mn:'두 이',  si:'둘, 두 번째',           th:'숫자', ex:[{w:'二月',r:'이월',m:'2월'},{w:'二十',r:'이십',m:'스물'}]},
+  {char:'三',rd:'삼',mn:'석 삼',  si:'셋, 세 번째',           th:'숫자', ex:[{w:'三月',r:'삼월',m:'3월'},{w:'三角',r:'삼각',m:'세 개의 각'}]},
+  {char:'四',rd:'사',mn:'넉 사',  si:'넷, 네 번째',           th:'숫자', ex:[{w:'四月',r:'사월',m:'4월'},{w:'四方',r:'사방',m:'동서남북 네 방향'}]},
+  {char:'五',rd:'오',mn:'다섯 오',si:'다섯, 다섯 번째',       th:'숫자', ex:[{w:'五月',r:'오월',m:'5월'},{w:'五色',r:'오색',m:'다섯 가지 색'}]},
+  {char:'六',rd:'육',mn:'여섯 육',si:'여섯, 여섯 번째',       th:'숫자', ex:[{w:'六月',r:'유월',m:'6월'},{w:'六十',r:'육십',m:'예순'}]},
+  {char:'七',rd:'칠',mn:'일곱 칠',si:'일곱, 일곱 번째',       th:'숫자', ex:[{w:'七月',r:'칠월',m:'7월'},{w:'七夕',r:'칠석',m:'음력 7월 7일'}]},
+  {char:'八',rd:'팔',mn:'여덟 팔',si:'여덟, 여덟 번째',       th:'숫자', ex:[{w:'八月',r:'팔월',m:'8월'},{w:'八方',r:'팔방',m:'여덟 방향'}]},
+  {char:'九',rd:'구',mn:'아홉 구',si:'아홉, 아홉 번째',       th:'숫자', ex:[{w:'九月',r:'구월',m:'9월'},{w:'九九',r:'구구',m:'구구단'}]},
+  {char:'十',rd:'십',mn:'열 십',  si:'열, 열 번째',           th:'숫자', ex:[{w:'十月',r:'시월',m:'10월'},{w:'十字',r:'십자',m:'열 십 모양'}]},
+  {char:'萬',rd:'만',mn:'일만 만',si:'만, 아주 많은 수',      th:'숫자', ex:[{w:'萬歲',r:'만세',m:'오래오래 살아라'},{w:'萬物',r:'만물',m:'세상의 모든 것'}]},
+  // ── 방향 ──
+  {char:'東',rd:'동',mn:'동녘 동',si:'동쪽, 해가 뜨는 방향', th:'방향', ex:[{w:'東方',r:'동방',m:'동쪽'},{w:'東西',r:'동서',m:'동쪽과 서쪽'}]},
+  {char:'西',rd:'서',mn:'서녘 서',si:'서쪽, 해가 지는 방향', th:'방향', ex:[{w:'西方',r:'서방',m:'서쪽'},{w:'西洋',r:'서양',m:'서쪽 나라들'}]},
+  {char:'南',rd:'남',mn:'남녘 남',si:'남쪽, 따뜻한 방향',    th:'방향', ex:[{w:'南北',r:'남북',m:'남쪽과 북쪽'},{w:'南山',r:'남산',m:'남쪽 산'}]},
+  {char:'北',rd:'북',mn:'북녘 북',si:'북쪽, 추운 방향',      th:'방향', ex:[{w:'北方',r:'북방',m:'북쪽'},{w:'南北',r:'남북',m:'남쪽과 북쪽'}]},
+  {char:'中',rd:'중',mn:'가운데 중',si:'가운데, 중심',        th:'방향', ex:[{w:'中心',r:'중심',m:'가운데'},{w:'中學',r:'중학',m:'중학교'}]},
+  {char:'外',rd:'외',mn:'바깥 외',si:'바깥, 밖',             th:'방향', ex:[{w:'外國',r:'외국',m:'다른 나라'},{w:'室外',r:'실외',m:'건물 밖'}]},
+  // ── 자연 ──
+  {char:'山',rd:'산',mn:'뫼 산',  si:'산, 높은 땅덩이',       th:'자연', ex:[{w:'山水',r:'산수',m:'산과 물'},{w:'登山',r:'등산',m:'산에 올라가기'}]},
+  {char:'水',rd:'수',mn:'물 수',  si:'물',                    th:'자연', ex:[{w:'水道',r:'수도',m:'물이 흐르는 길'},{w:'生水',r:'생수',m:'마시는 물'}]},
+  {char:'火',rd:'화',mn:'불 화',  si:'불, 뜨거운 것',         th:'자연', ex:[{w:'火山',r:'화산',m:'불이 나오는 산'},{w:'火力',r:'화력',m:'불의 힘'}]},
+  {char:'木',rd:'목',mn:'나무 목',si:'나무',                  th:'자연', ex:[{w:'木手',r:'목수',m:'나무로 집 짓는 사람'},{w:'木材',r:'목재',m:'나무 재료'}]},
+  {char:'金',rd:'금',mn:'쇠 금',  si:'금, 쇠, 돈',           th:'자연', ex:[{w:'金色',r:'금색',m:'금빛 색'},{w:'金錢',r:'금전',m:'돈'}]},
+  {char:'土',rd:'토',mn:'흙 토',  si:'흙, 땅',               th:'자연', ex:[{w:'土地',r:'토지',m:'땅'},{w:'國土',r:'국토',m:'나라의 땅'}]},
+  {char:'日',rd:'일',mn:'날 일',  si:'해, 날, 하루',          th:'자연', ex:[{w:'日記',r:'일기',m:'날마다 쓰는 글'},{w:'日月',r:'일월',m:'해와 달'}]},
+  {char:'月',rd:'월',mn:'달 월',  si:'달, 한 달',             th:'자연', ex:[{w:'月光',r:'월광',m:'달빛'},{w:'月給',r:'월급',m:'한 달 월급'}]},
+  {char:'花',rd:'화',mn:'꽃 화',  si:'꽃, 예쁜 식물',         th:'자연', ex:[{w:'花園',r:'화원',m:'꽃밭'},{w:'國花',r:'국화',m:'나라꽃'}]},
+  // ── 가족 ──
+  {char:'父',rd:'부',mn:'아비 부',si:'아버지, 아빠',          th:'가족', ex:[{w:'父母',r:'부모',m:'아버지와 어머니'},{w:'父子',r:'부자',m:'아버지와 아들'}]},
+  {char:'母',rd:'모',mn:'어미 모',si:'어머니, 엄마',          th:'가족', ex:[{w:'父母',r:'부모',m:'아버지와 어머니'},{w:'母國',r:'모국',m:'자기 나라'}]},
+  {char:'兄',rd:'형',mn:'형 형',  si:'형, 오빠',              th:'가족', ex:[{w:'兄弟',r:'형제',m:'형과 동생'},{w:'父兄',r:'부형',m:'아버지와 형'}]},
+  {char:'弟',rd:'제',mn:'아우 제',si:'남동생',                th:'가족', ex:[{w:'兄弟',r:'형제',m:'형과 동생'},{w:'弟子',r:'제자',m:'배우는 학생'}]},
+  {char:'女',rd:'녀',mn:'계집 녀',si:'여자, 딸',              th:'가족', ex:[{w:'女子',r:'여자',m:'여자'},{w:'女王',r:'여왕',m:'여자 왕'}]},
+  // ── 사회 ──
+  {char:'人',rd:'인',mn:'사람 인',si:'사람, 인간',            th:'사회', ex:[{w:'人生',r:'인생',m:'사람의 삶'},{w:'外國人',r:'외국인',m:'다른 나라 사람'}]},
+  {char:'王',rd:'왕',mn:'임금 왕',si:'왕, 나라의 지도자',     th:'사회', ex:[{w:'大王',r:'대왕',m:'위대한 왕'},{w:'王國',r:'왕국',m:'왕이 다스리는 나라'}]},
+  {char:'國',rd:'국',mn:'나라 국',si:'나라, 국가',            th:'사회', ex:[{w:'大韓民國',r:'대한민국',m:'우리나라 이름'},{w:'外國',r:'외국',m:'다른 나라'}]},
+  {char:'韓',rd:'한',mn:'나라이름 한',si:'한국, 우리나라',    th:'사회', ex:[{w:'韓國',r:'한국',m:'우리나라'},{w:'大韓',r:'대한',m:'위대한 한국'}]},
+  {char:'軍',rd:'군',mn:'군사 군',si:'군인, 나라를 지키는 사람',th:'사회', ex:[{w:'軍人',r:'군인',m:'나라를 지키는 사람'},{w:'軍事',r:'군사',m:'군대에 관한 일'}]},
+  {char:'民',rd:'민',mn:'백성 민',si:'국민, 나라의 사람들',   th:'사회', ex:[{w:'國民',r:'국민',m:'나라의 사람들'},{w:'民主',r:'민주',m:'국민이 주인'}]},
+  {char:'門',rd:'문',mn:'문 문',  si:'문, 들어가는 곳',       th:'사회', ex:[{w:'大門',r:'대문',m:'큰 문'},{w:'門前',r:'문전',m:'문 앞'}]},
+  {char:'室',rd:'실',mn:'집 실',  si:'방, 실내',              th:'사회', ex:[{w:'敎室',r:'교실',m:'공부하는 방'},{w:'室外',r:'실외',m:'건물 밖'}]},
+  // ── 학습 ──
+  {char:'學',rd:'학',mn:'배울 학',si:'배우다, 공부하다',      th:'학습', ex:[{w:'學生',r:'학생',m:'배우는 사람'},{w:'學校',r:'학교',m:'공부하는 곳'}]},
+  {char:'敎',rd:'교',mn:'가르칠 교',si:'가르치다',           th:'학습', ex:[{w:'敎室',r:'교실',m:'가르치는 방'},{w:'敎育',r:'교육',m:'가르치고 기르기'}]},
+  {char:'先',rd:'선',mn:'먼저 선',si:'먼저, 앞서다',          th:'학습', ex:[{w:'先生',r:'선생',m:'가르치는 분'},{w:'先後',r:'선후',m:'앞과 뒤'}]},
+  {char:'生',rd:'생',mn:'날 생',  si:'살다, 태어나다',        th:'학습', ex:[{w:'先生',r:'선생',m:'선생님'},{w:'學生',r:'학생',m:'배우는 사람'}]},
+  // ── 크기 ──
+  {char:'大',rd:'대',mn:'큰 대',  si:'크다, 큰',              th:'크기', ex:[{w:'大學',r:'대학',m:'대학교'},{w:'大王',r:'대왕',m:'큰 왕'}]},
+  {char:'小',rd:'소',mn:'작을 소',si:'작다, 작은',            th:'크기', ex:[{w:'小學',r:'소학',m:'초등학교'},{w:'大小',r:'대소',m:'크고 작음'}]},
+  {char:'長',rd:'장',mn:'길 장',  si:'길다, 어른, 우두머리',  th:'크기', ex:[{w:'長女',r:'장녀',m:'큰딸'},{w:'校長',r:'교장',m:'학교 최고 선생님'}]},
+  // ── 색깔 ──
+  {char:'白',rd:'백',mn:'흰 백',  si:'하얗다, 흰색',          th:'색깔', ex:[{w:'白色',r:'백색',m:'흰색'},{w:'白花',r:'백화',m:'하얀 꽃'}]},
+  {char:'靑',rd:'청',mn:'푸를 청',si:'파랗다, 푸른색',        th:'색깔', ex:[{w:'靑山',r:'청산',m:'푸른 산'},{w:'靑少年',r:'청소년',m:'어린이와 젊은이'}]},
+];
+
+const G7 = [
+  // ── 숫자 ──
+  {char:'百',rd:'백',mn:'일백 백',si:'백, 100',               th:'숫자', ex:[{w:'百年',r:'백년',m:'100년'},{w:'百花',r:'백화',m:'온갖 꽃'}]},
+  {char:'千',rd:'천',mn:'일천 천',si:'천, 1000',              th:'숫자', ex:[{w:'千年',r:'천년',m:'1000년'},{w:'千金',r:'천금',m:'아주 귀한 것'}]},
+  // ── 자연 ──
+  {char:'天',rd:'천',mn:'하늘 천',si:'하늘',                  th:'자연', ex:[{w:'天氣',r:'천기',m:'날씨'},{w:'天地',r:'천지',m:'하늘과 땅'}]},
+  {char:'地',rd:'지',mn:'땅 지',  si:'땅, 지구',              th:'자연', ex:[{w:'天地',r:'천지',m:'하늘과 땅'},{w:'地圖',r:'지도',m:'땅의 그림'}]},
+  {char:'江',rd:'강',mn:'강 강',  si:'강, 큰 냇물',           th:'자연', ex:[{w:'漢江',r:'한강',m:'서울의 강'},{w:'江山',r:'강산',m:'강과 산, 나라'}]},
+  {char:'川',rd:'천',mn:'내 천',  si:'냇물, 작은 강',         th:'자연', ex:[{w:'山川',r:'산천',m:'산과 냇물'},{w:'小川',r:'소천',m:'작은 내'}]},
+  {char:'林',rd:'림',mn:'수풀 림',si:'숲, 나무가 많은 곳',    th:'자연', ex:[{w:'山林',r:'산림',m:'산의 숲'},{w:'林野',r:'임야',m:'숲과 들'}]},
+  {char:'草',rd:'초',mn:'풀 초',  si:'풀, 잡초',              th:'자연', ex:[{w:'草原',r:'초원',m:'풀밭'},{w:'草花',r:'초화',m:'풀과 꽃'}]},
+  {char:'石',rd:'석',mn:'돌 석',  si:'돌, 바위',              th:'자연', ex:[{w:'石山',r:'석산',m:'돌산'},{w:'石水',r:'석수',m:'돌틈에서 나오는 물'}]},
+  {char:'海',rd:'해',mn:'바다 해',si:'바다',                  th:'자연', ex:[{w:'海水',r:'해수',m:'바닷물'},{w:'海外',r:'해외',m:'바다 밖, 외국'}]},
+  {char:'空',rd:'공',mn:'빌 공',  si:'비다, 하늘, 공중',      th:'자연', ex:[{w:'空中',r:'공중',m:'하늘 위'},{w:'空氣',r:'공기',m:'우리가 마시는 기체'}]},
+  {char:'氣',rd:'기',mn:'기운 기',si:'기운, 날씨',            th:'자연', ex:[{w:'空氣',r:'공기',m:'우리가 마시는 기체'},{w:'氣分',r:'기분',m:'마음의 상태'}]},
+  {char:'風',rd:'풍',mn:'바람 풍',si:'바람',                  th:'자연', ex:[{w:'風水',r:'풍수',m:'바람과 물'},{w:'強風',r:'강풍',m:'센 바람'}]},
+  {char:'雨',rd:'우',mn:'비 우',  si:'비',                    th:'자연', ex:[{w:'雨水',r:'우수',m:'빗물'},{w:'大雨',r:'대우',m:'큰 비'}]},
+  {char:'雪',rd:'설',mn:'눈 설',  si:'눈',                    th:'자연', ex:[{w:'雪山',r:'설산',m:'눈 덮인 산'},{w:'大雪',r:'대설',m:'많이 내리는 눈'}]},
+  {char:'光',rd:'광',mn:'빛 광',  si:'빛, 빛나다',            th:'자연', ex:[{w:'月光',r:'월광',m:'달빛'},{w:'光明',r:'광명',m:'밝은 빛'}]},
+  {char:'明',rd:'명',mn:'밝을 명',si:'밝다, 환하다',          th:'자연', ex:[{w:'明月',r:'명월',m:'밝은 달'},{w:'明白',r:'명백',m:'분명하고 확실함'}]},
+  // ── 계절/시간 ──
+  {char:'春',rd:'춘',mn:'봄 춘',  si:'봄, 따뜻한 계절',       th:'계절', ex:[{w:'春天',r:'춘천',m:'봄날의 하늘'},{w:'春花',r:'춘화',m:'봄꽃'}]},
+  {char:'夏',rd:'하',mn:'여름 하',si:'여름, 더운 계절',       th:'계절', ex:[{w:'夏天',r:'하천',m:'여름 하늘'},{w:'夏季',r:'하계',m:'여름철'}]},
+  {char:'秋',rd:'추',mn:'가을 추',si:'가을, 수확의 계절',     th:'계절', ex:[{w:'秋天',r:'추천',m:'가을 하늘'},{w:'秋夕',r:'추석',m:'한가위'}]},
+  {char:'冬',rd:'동',mn:'겨울 동',si:'겨울, 추운 계절',       th:'계절', ex:[{w:'冬天',r:'동천',m:'겨울 하늘'},{w:'冬季',r:'동계',m:'겨울철'}]},
+  {char:'時',rd:'시',mn:'때 시',  si:'시간, 때',              th:'계절', ex:[{w:'時間',r:'시간',m:'흐르는 시간'},{w:'時代',r:'시대',m:'역사의 한 시기'}]},
+  {char:'年',rd:'년',mn:'해 년',  si:'해, 1년',               th:'계절', ex:[{w:'年齡',r:'연령',m:'나이'},{w:'百年',r:'백년',m:'100년'}]},
+  // ── 가족 추가 ──
+  {char:'子',rd:'자',mn:'아들 자',si:'아이, 아들',            th:'가족', ex:[{w:'子女',r:'자녀',m:'아들과 딸'},{w:'父子',r:'부자',m:'아버지와 아들'}]},
+  {char:'男',rd:'남',mn:'사내 남',si:'남자, 사내',            th:'가족', ex:[{w:'男子',r:'남자',m:'남자'},{w:'男女',r:'남녀',m:'남자와 여자'}]},
+  {char:'老',rd:'로',mn:'늙을 로',si:'늙다, 할아버지',        th:'가족', ex:[{w:'老人',r:'노인',m:'늙은 사람'},{w:'老少',r:'노소',m:'늙은이와 젊은이'}]},
+  // ── 방향 추가 ──
+  {char:'上',rd:'상',mn:'위 상',  si:'위, 올라가다',          th:'방향', ex:[{w:'上下',r:'상하',m:'위와 아래'},{w:'地上',r:'지상',m:'땅 위'}]},
+  {char:'下',rd:'하',mn:'아래 하',si:'아래, 내려가다',        th:'방향', ex:[{w:'上下',r:'상하',m:'위와 아래'},{w:'天下',r:'천하',m:'온 세상'}]},
+  {char:'前',rd:'전',mn:'앞 전',  si:'앞, 이전',              th:'방향', ex:[{w:'前後',r:'전후',m:'앞과 뒤'},{w:'門前',r:'문전',m:'문 앞'}]},
+  {char:'後',rd:'후',mn:'뒤 후',  si:'뒤, 나중',              th:'방향', ex:[{w:'前後',r:'전후',m:'앞과 뒤'},{w:'後日',r:'후일',m:'나중에'}]},
+  {char:'左',rd:'좌',mn:'왼 좌',  si:'왼쪽',                  th:'방향', ex:[{w:'左右',r:'좌우',m:'왼쪽과 오른쪽'},{w:'左方',r:'좌방',m:'왼쪽'}]},
+  {char:'右',rd:'우',mn:'오른 우',si:'오른쪽',                th:'방향', ex:[{w:'左右',r:'좌우',m:'왼쪽과 오른쪽'},{w:'右方',r:'우방',m:'오른쪽'}]},
+  {char:'內',rd:'내',mn:'안 내',  si:'안, 내부',              th:'방향', ex:[{w:'內外',r:'내외',m:'안과 밖'},{w:'室內',r:'실내',m:'건물 안'}]},
+  {char:'間',rd:'간',mn:'사이 간',si:'사이, 중간',            th:'방향', ex:[{w:'人間',r:'인간',m:'사람'},{w:'時間',r:'시간',m:'시간'}]},
+  {char:'方',rd:'방',mn:'모 방',  si:'방향, 방법',            th:'방향', ex:[{w:'東方',r:'동방',m:'동쪽'},{w:'方向',r:'방향',m:'향하는 쪽'}]},
+  // ── 학습 추가 ──
+  {char:'校',rd:'교',mn:'학교 교',si:'학교, 공부하는 곳',     th:'학습', ex:[{w:'學校',r:'학교',m:'공부하는 곳'},{w:'校長',r:'교장',m:'학교 최고 선생님'}]},
+  {char:'書',rd:'서',mn:'글 서',  si:'글, 책',               th:'학습', ex:[{w:'書籍',r:'서적',m:'책'},{w:'讀書',r:'독서',m:'책 읽기'}]},
+  {char:'讀',rd:'독',mn:'읽을 독',si:'읽다',                  th:'학습', ex:[{w:'讀書',r:'독서',m:'책 읽기'},{w:'讀者',r:'독자',m:'책을 읽는 사람'}]},
+  {char:'算',rd:'산',mn:'셈 산',  si:'셈하다, 계산하다',      th:'학습', ex:[{w:'計算',r:'계산',m:'수를 셈하기'},{w:'算術',r:'산술',m:'셈 방법'}]},
+  {char:'語',rd:'어',mn:'말씀 어',si:'말, 언어',              th:'학습', ex:[{w:'國語',r:'국어',m:'나라말, 한국어'},{w:'外國語',r:'외국어',m:'다른 나라 말'}]},
+  {char:'話',rd:'화',mn:'말씀 화',si:'이야기, 말하다',        th:'학습', ex:[{w:'電話',r:'전화',m:'전기로 하는 말'},{w:'話題',r:'화제',m:'이야깃거리'}]},
+  {char:'育',rd:'육',mn:'기를 육',si:'기르다, 교육하다',      th:'학습', ex:[{w:'敎育',r:'교육',m:'가르치고 기르기'},{w:'育兒',r:'육아',m:'아이 기르기'}]},
+  // ── 사회 추가 ──
+  {char:'家',rd:'가',mn:'집 가',  si:'집, 가정',              th:'사회', ex:[{w:'家族',r:'가족',m:'식구'},{w:'家庭',r:'가정',m:'가족이 사는 집'}]},
+  {char:'道',rd:'도',mn:'길 도',  si:'길, 도리',              th:'사회', ex:[{w:'道路',r:'도로',m:'차가 다니는 길'},{w:'人道',r:'인도',m:'사람이 다니는 길'}]},
+  {char:'市',rd:'시',mn:'저자 시',si:'시장, 도시',            th:'사회', ex:[{w:'市場',r:'시장',m:'물건 사고파는 곳'},{w:'都市',r:'도시',m:'큰 도시'}]},
+  {char:'村',rd:'촌',mn:'마을 촌',si:'마을, 시골',            th:'사회', ex:[{w:'農村',r:'농촌',m:'농사짓는 마을'},{w:'村里',r:'촌리',m:'시골 마을'}]},
+  {char:'場',rd:'장',mn:'마당 장',si:'장소, 마당',            th:'사회', ex:[{w:'市場',r:'시장',m:'물건 파는 곳'},{w:'運動場',r:'운동장',m:'운동하는 곳'}]},
+  {char:'農',rd:'농',mn:'농사 농',si:'농사, 농부',            th:'사회', ex:[{w:'農村',r:'농촌',m:'농사짓는 마을'},{w:'農業',r:'농업',m:'농사짓는 일'}]},
+  {char:'工',rd:'공',mn:'장인 공',si:'만들다, 일하다',        th:'사회', ex:[{w:'工場',r:'공장',m:'물건 만드는 곳'},{w:'工業',r:'공업',m:'물건 만드는 일'}]},
+  {char:'里',rd:'리',mn:'마을 리',si:'마을, 거리 단위',       th:'사회', ex:[{w:'千里',r:'천리',m:'아주 먼 거리'},{w:'里長',r:'이장',m:'마을 지도자'}]},
+  // ── 신체 ──
+  {char:'心',rd:'심',mn:'마음 심',si:'마음, 심장',            th:'신체', ex:[{w:'心臟',r:'심장',m:'심장'},{w:'心理',r:'심리',m:'마음의 원리'}]},
+  {char:'手',rd:'수',mn:'손 수',  si:'손',                    th:'신체', ex:[{w:'手足',r:'수족',m:'손과 발'},{w:'手動',r:'수동',m:'손으로 하는'}]},
+  {char:'口',rd:'구',mn:'입 구',  si:'입, 말하다',            th:'신체', ex:[{w:'口語',r:'구어',m:'말하는 언어'},{w:'出口',r:'출구',m:'나가는 곳'}]},
+  {char:'耳',rd:'이',mn:'귀 이',  si:'귀',                    th:'신체', ex:[{w:'耳目',r:'이목',m:'귀와 눈'},{w:'左耳',r:'좌이',m:'왼쪽 귀'}]},
+  {char:'目',rd:'목',mn:'눈 목',  si:'눈, 보다',              th:'신체', ex:[{w:'目標',r:'목표',m:'이루고자 하는 것'},{w:'耳目',r:'이목',m:'귀와 눈'}]},
+  {char:'足',rd:'족',mn:'발 족',  si:'발, 충분하다',          th:'신체', ex:[{w:'手足',r:'수족',m:'손과 발'},{w:'足球',r:'족구',m:'발로 하는 공놀이'}]},
+  {char:'力',rd:'력',mn:'힘 력',  si:'힘, 능력',              th:'신체', ex:[{w:'火力',r:'화력',m:'불의 힘'},{w:'力量',r:'역량',m:'능력'}]},
+  // ── 색깔 추가 ──
+  {char:'色',rd:'색',mn:'빛 색',  si:'색, 색깔',              th:'색깔', ex:[{w:'白色',r:'백색',m:'흰색'},{w:'色彩',r:'색채',m:'색의 아름다움'}]},
+  {char:'黃',rd:'황',mn:'누를 황',si:'노랗다, 황금색',        th:'색깔', ex:[{w:'黃金',r:'황금',m:'금'},{w:'黃色',r:'황색',m:'노란색'}]},
+  {char:'赤',rd:'적',mn:'붉을 적',si:'빨갛다, 붉은색',        th:'색깔', ex:[{w:'赤色',r:'적색',m:'빨간색'},{w:'赤道',r:'적도',m:'지구의 가운데 선'}]},
+  {char:'黑',rd:'흑',mn:'검을 흑',si:'검다, 검은색',          th:'색깔', ex:[{w:'黑白',r:'흑백',m:'검은색과 흰색'},{w:'黑色',r:'흑색',m:'검은색'}]},
+  // ── 생활 ──
+  {char:'食',rd:'식',mn:'밥 식',  si:'먹다, 음식',            th:'생활', ex:[{w:'食事',r:'식사',m:'밥 먹기'},{w:'食物',r:'식물',m:'먹는 것'}]},
+  {char:'魚',rd:'어',mn:'물고기 어',si:'물고기',              th:'생활', ex:[{w:'金魚',r:'금어',m:'금붕어'},{w:'魚市場',r:'어시장',m:'생선 파는 시장'}]},
+  {char:'車',rd:'차',mn:'수레 차',si:'차, 자동차',            th:'생활', ex:[{w:'自動車',r:'자동차',m:'스스로 움직이는 차'},{w:'車道',r:'차도',m:'차가 다니는 길'}]},
+  {char:'歌',rd:'가',mn:'노래 가',si:'노래',                  th:'생활', ex:[{w:'歌手',r:'가수',m:'노래하는 사람'},{w:'國歌',r:'국가',m:'나라 노래'}]},
+  {char:'果',rd:'과',mn:'실과 과',si:'과일, 결과',            th:'생활', ex:[{w:'果物',r:'과물',m:'과일'},{w:'結果',r:'결과',m:'어떤 일의 끝'}]},
+  {char:'事',rd:'사',mn:'일 사',  si:'일, 사건',              th:'생활', ex:[{w:'事前',r:'사전',m:'일이 생기기 전'},{w:'人事',r:'인사',m:'인사하기'}]},
+  {char:'用',rd:'용',mn:'쓸 용',  si:'쓰다, 사용하다',        th:'생활', ex:[{w:'使用',r:'사용',m:'쓰다'},{w:'用水',r:'용수',m:'쓰는 물'}]},
+  // ── 덕목 ──
+  {char:'孝',rd:'효',mn:'효도 효',si:'부모님께 잘 하다',      th:'덕목', ex:[{w:'孝子',r:'효자',m:'부모님께 잘 하는 아들'},{w:'孝道',r:'효도',m:'부모님께 잘 하는 도리'}]},
+  {char:'愛',rd:'애',mn:'사랑 애',si:'사랑하다',              th:'덕목', ex:[{w:'愛國',r:'애국',m:'나라를 사랑하다'},{w:'愛人',r:'애인',m:'사랑하는 사람'}]},
+  {char:'正',rd:'정',mn:'바를 정',si:'바르다, 옳다',          th:'덕목', ex:[{w:'正直',r:'정직',m:'바르고 솔직하다'},{w:'正門',r:'정문',m:'앞에 있는 정식 문'}]},
+  {char:'安',rd:'안',mn:'편안 안',si:'편안하다',              th:'덕목', ex:[{w:'安全',r:'안전',m:'위험하지 않음'},{w:'安心',r:'안심',m:'마음이 편안함'}]},
+  {char:'平',rd:'평',mn:'평평할 평',si:'평평하다, 평화롭다',  th:'덕목', ex:[{w:'平和',r:'평화',m:'평안하고 화목함'},{w:'平生',r:'평생',m:'살아있는 동안 내내'}]},
+  {char:'和',rd:'화',mn:'화할 화',si:'화목하다, 화합하다',    th:'덕목', ex:[{w:'平和',r:'평화',m:'평안하고 화목함'},{w:'和合',r:'화합',m:'서로 잘 어울림'}]},
+  {char:'友',rd:'우',mn:'벗 우',  si:'친구',                  th:'덕목', ex:[{w:'友人',r:'우인',m:'친구'},{w:'友情',r:'우정',m:'친구 사이의 정'}]},
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let listGrade  = 0;   // 0 = 전체, 8 = 8급, 7 = 7급
+let studyGrade = 0;
+let studyTheme = '전체';
+
+let qGrade  = 8;
+let qType   = 'reading';
+let questions   = [];
+let qIdx        = 0;
+let qScore      = 0;
+let qOpts       = [];  // current question's options array
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const themeEmoji = {숫자:'🔢',자연:'🌿',가족:'👨‍👩‍👧',방향:'🧭',학습:'📚',사회:'🏘️',계절:'🍂',신체:'💪',색깔:'🎨',생활:'🏠',크기:'📏',덕목:'⭐'};
+
+function getData(grade) {
+  if (grade === 0) return [...G8, ...G7];
+  return grade === 8 ? G8 : G7;
+}
+
+/* 전체 데이터 중에서 한자 찾기 */
+function findChar(char) {
+  return [...G8, ...G7].find(x => x.char === char);
+}
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'list')  renderList();
+  if (id === 'study') renderStudy();
+}
+
+/* ============================================================
+   LIST
+   ============================================================ */
+function switchListGrade(g, btn) {
+  listGrade = g;
+  btn.parentElement.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const data = getData(listGrade);
+  document.getElementById('list-count').textContent = data.length + '자';
+  document.getElementById('hanja-grid').innerHTML = data.map(h =>
+    `<div class="hanja-card-mini" onclick="openModal('${h.char}')">
+       <span class="hanja-char-mini">${h.char}</span>
+       <div class="hanja-reading-mini">${h.rd}</div>
+       <div class="hanja-meaning-mini">${h.mn}</div>
+     </div>`
+  ).join('');
+}
+
+/* ============================================================
+   MODAL + 획순 (정적 SVG 단계별 표시)
+   ============================================================ */
+
+function openModal(char) {
+  const h = findChar(char);
+  if (!h) return;
+
+  document.getElementById('m-char').textContent    = h.char;
+  document.getElementById('m-reading').textContent = `${h.rd}  (${h.mn})`;
+  document.getElementById('m-meaning').textContent = '✏️ ' + h.si;
+  document.getElementById('m-examples').innerHTML  =
+    `<div class="study-examples-title">📚 이 한자가 들어간 단어</div>` +
+    h.ex.map(e =>
+      `<div class="example-item"><span class="example-word">${e.w}(${e.r})</span> : ${e.m}</div>`
+    ).join('');
+
+  document.getElementById('stroke-target').innerHTML = '';
+  renderStrokeProgression(h.char);
+
+  document.getElementById('modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+/* ── 획순 단계별 SVG 렌더링 ── */
+function renderStrokeProgression(char) {
+  const target = document.getElementById('stroke-target');
+
+  // hanzi-writer-data CDN에서 획 경로 데이터 로드
+  const url = `https://cdn.jsdelivr.net/npm/hanzi-writer-data@latest/${encodeURIComponent(char)}.json`;
+
+  fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error('no data');
+      return r.json();
+    })
+    .then(data => {
+      const strokes = data.strokes;  // SVG path 문자열 배열
+      const n = strokes.length;
+
+      /* SVG 크기 및 좌표계 설정
+         hanzi-writer-data 좌표: 0~1024, Y축 위 방향 → SVG 변환 필요 */
+      const S   = 46;   // SVG 픽셀 크기 (작게)
+      const PAD = 60;   // 한자가 꽉 차지 않도록 뷰박스 여백
+      const vb  = `${-PAD} ${-PAD} ${1024 + PAD*2} ${1024 + PAD*2}`;
+      const tf  = 'translate(0,1024) scale(1,-1)';
+
+      /* 색상 팔레트 */
+      const COL_DONE    = '#8ABDE0';              // 이전 획 — 하늘 파스텔
+      const COL_CURRENT = '#FF5A7E';              // 현재 획 — 비비드 핑크 (눈에 띄는 색)
+      const COL_FUTURE  = 'rgba(180,210,230,.15)'; // 아직 안 쓴 획 — 거의 투명
+
+      const steps = strokes.map((_, i) => {
+        const paths = strokes.map((d, j) => {
+          const fill = j < i ? COL_DONE : j === i ? COL_CURRENT : COL_FUTURE;
+          return `<path d="${d}" fill="${fill}"/>`;
+        }).join('');
+
+        return `
+          <div class="stroke-step">
+            <svg width="${S}" height="${S}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">
+              <g transform="${tf}">${paths}</g>
+            </svg>
+            <div class="stroke-step-label">${i+1}획</div>
+          </div>
+          ${i < n - 1 ? '<div class="stroke-arrow">›</div>' : ''}
+        `;
+      }).join('');
+
+      target.innerHTML = `<div class="stroke-row">${steps}</div>`;
+    })
+    .catch(() => {
+      target.innerHTML = `<div class="stroke-msg">획순 정보를 불러올 수 없어요 😅<br><span style="font-size:.8em">인터넷 연결을 확인해 주세요</span></div>`;
+    });
+}
+
+/* ============================================================
+   STUDY
+   ============================================================ */
+function switchStudyGrade(g, btn) {
+  studyGrade = g;
+  studyTheme = '전체';
+  btn.parentElement.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStudy();
+}
+
+function selectTheme(t) { studyTheme = t; renderStudy(); }
+
+function renderStudy() {
+  const data = getData(studyGrade);
+  const themes = ['전체', ...new Set(data.map(h => h.th))];
+
+  document.getElementById('theme-filter').innerHTML = themes.map(t =>
+    `<button class="theme-btn ${t === studyTheme ? 'active' : ''}" onclick="selectTheme('${t}')">
+       ${themeEmoji[t] || '📌'} ${t}
+     </button>`
+  ).join('');
+
+  const filtered = studyTheme === '전체' ? data : data.filter(h => h.th === studyTheme);
+
+  document.getElementById('study-cards').innerHTML = filtered.length
+    ? filtered.map(h =>
+        `<div class="study-card">
+           <div class="study-char">${h.char}</div>
+           <div class="study-info">
+             <div class="study-reading">${h.rd} &nbsp;(${h.mn})</div>
+             <div class="study-meaning">💡 ${h.si}</div>
+             <div class="study-examples">
+               <div class="study-examples-title">📚 이 한자가 들어간 단어</div>
+               ${h.ex.map(e => `<div class="example-item"><span class="example-word">${e.w}(${e.r})</span> : ${e.m}</div>`).join('')}
+             </div>
+           </div>
+         </div>`
+      ).join('')
+    : `<div class="empty-msg">해당 주제의 한자가 없어요 😅</div>`;
+}
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+function pickGrade(g, btn) {
+  qGrade = g;
+  btn.parentElement.querySelectorAll('.qg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function pickType(t, btn) {
+  qType = t;
+  btn.parentElement.querySelectorAll('.qg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildQuestions(n = 10) {
+  const pool = qGrade === 0 ? [...G8, ...G7] : getData(qGrade);
+  const all  = shuffle(pool);
+  const sel  = all.slice(0, Math.min(n, all.length));
+
+  return sel.map(h => {
+    let type = qType === 'mixed'
+      ? ['reading','meaning','char'][Math.floor(Math.random()*3)]
+      : qType;
+
+    const others = shuffle(pool.filter(x => x.char !== h.char));
+
+    if (type === 'reading') {
+      const opts = shuffle([h.rd, ...others.slice(0,3).map(x => x.rd)]);
+      return { display: h.char, label: '이 한자의 음(읽는 법)은?', prompt: '어떻게 읽을까요?', answer: h.rd, opts, isChar: false };
+    }
+    if (type === 'meaning') {
+      const opts = shuffle([h.si, ...others.slice(0,3).map(x => x.si)]);
+      return { display: h.char, label: `이 한자(${h.rd})의 뜻은?`, prompt: '뜻이 무엇일까요?', answer: h.si, opts, isChar: false };
+    }
+    // char
+    const opts = shuffle([h.char, ...others.slice(0,3).map(x => x.char)]);
+    return { display: `${h.rd}\n${h.si}`, label: '한자를 찾아보세요!', prompt: '이 뜻을 가진 한자는 어느 것일까요?', answer: h.char, opts, isChar: true };
+  });
+}
+
+function startQuiz() {
+  questions = buildQuestions(10);
+  qIdx = 0; qScore = 0;
+  document.getElementById('quiz-setup').style.display  = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-area').style.display   = 'block';
+  document.getElementById('q-total').textContent = questions.length;
+  renderQ();
+}
+
+function renderQ() {
+  const q = questions[qIdx];
+  const pct = (qIdx / questions.length) * 100;
+  document.getElementById('prog-fill').style.width   = pct + '%';
+  document.getElementById('q-num').textContent       = qIdx + 1;
+  document.getElementById('q-score').textContent     = qScore;
+  document.getElementById('q-type-label').textContent = q.label;
+  document.getElementById('q-char').textContent      = q.display;
+  document.getElementById('q-prompt').textContent    = q.prompt;
+  document.getElementById('q-feedback').textContent  = '';
+  document.getElementById('q-next').style.display    = 'none';
+
+  qOpts = q.opts;
+  document.getElementById('q-options').innerHTML = q.opts.map((opt, i) =>
+    `<button class="quiz-option ${q.isChar ? 'char-opt' : ''}"
+             onclick="checkAns(${i})">${opt}</button>`
+  ).join('');
+}
+
+function checkAns(idx) {
+  const q   = questions[qIdx];
+  const sel = qOpts[idx];
+  document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+  const btns = document.querySelectorAll('.quiz-option');
+
+  if (sel === q.answer) {
+    btns[idx].classList.add('correct', 'anim-bounce');
+    document.getElementById('q-feedback').textContent = '🎉 정답이에요! 멋져요!';
+    qScore += 10;
+    document.getElementById('q-score').textContent = qScore;
+  } else {
+    btns[idx].classList.add('wrong', 'anim-shake');
+    document.getElementById('q-feedback').textContent = `😅 아쉬워요! 정답은 "${q.answer}"`;
+    btns.forEach(b => { if (b.textContent.trim() === q.answer) b.classList.add('correct'); });
+  }
+  document.getElementById('q-next').style.display = 'block';
+}
+
+function nextQ() {
+  qIdx++;
+  if (qIdx >= questions.length) showResult();
+  else renderQ();
+}
+
+function showResult() {
+  document.getElementById('quiz-area').style.display   = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+
+  const max = questions.length * 10;
+  const pct = (qScore / max) * 100;
+
+  document.getElementById('res-score').textContent = `${qScore}점 / ${max}점`;
+
+  let stars, msg;
+  if      (pct >= 90) { stars = '⭐⭐⭐'; msg = '완벽해요! 진짜 대단해요! 🏆'; }
+  else if (pct >= 70) { stars = '⭐⭐';   msg = '잘했어요! 조금만 더 공부해봐요! 💪'; }
+  else if (pct >= 50) { stars = '⭐';     msg = '열심히 공부하면 더 잘할 수 있어요! 📚'; }
+  else                { stars = '🌱';     msg = '다시 한 번 도전해봐요! 할 수 있어요! 🎯'; }
+
+  document.getElementById('res-stars').textContent = stars;
+  document.getElementById('res-msg').textContent   = msg;
+}
+
+function resetQuiz() {
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-setup').style.display  = 'block';
+}
+
+/* ── Init ── */
+renderList();
+renderStudy();
+</script>
+</body>
+</html>
