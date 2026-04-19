@@ -503,6 +503,7 @@
   <button class="nav-btn active" data-sec="list"  onclick="showSection('list',this)">📋 한자 목록</button>
   <button class="nav-btn"        data-sec="study" onclick="showSection('study',this)">📖 주제별 학습</button>
   <button class="nav-btn"        data-sec="quiz"  onclick="showSection('quiz',this)">🎯 퀴즈</button>
+  <button class="nav-btn"        data-sec="exam"  onclick="showSection('exam',this)">📝 기출문제</button>
 </nav>
 
 <div class="content">
@@ -510,13 +511,13 @@
   <!-- ══════════════ LIST ══════════════ -->
   <div class="section active" id="section-list">
     <div class="grade-selector">
-      <button class="grade-btn active" onclick="switchListGrade(0,this)">☁️ 전체</button>
-      <button class="grade-btn"        onclick="switchListGrade(8,this)">🌤️ 8급</button>
-      <button class="grade-btn"        onclick="switchListGrade(7,this)">🫧 7급</button>
+      <button class="grade-btn active" onclick="switchListGrade(0,this)">☁️ 전체 (150자)</button>
+      <button class="grade-btn"        onclick="switchListGrade(8,this)">🌤️ 8급 (50자)</button>
+      <button class="grade-btn"        onclick="switchListGrade(7,this)">🫧 7급 (100자)</button>
     </div>
     <div class="section-title">
       한자 전체 보기
-      <span class="count-badge" id="list-count">123자</span>
+      <span class="count-badge" id="list-count">150자</span>
     </div>
     <div class="hanja-grid" id="hanja-grid"></div>
   </div>
@@ -586,6 +587,47 @@
         <button class="quiz-start" onclick="resetQuiz()">다시 도전!</button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ══════════════ EXAM ══════════════ -->
+  <div class="section" id="section-exam">
+    <div class="quiz-container">
+      <div id="exam-setup">
+        <div style="font-size:3.8em">📝</div>
+        <h2 style="margin:14px 0 6px">기출문제 풀기</h2>
+        <p style="color:#999;font-size:.95em">실제 시험에 나온 문제예요!</p>
+        <p style="margin:20px 0 6px;font-weight:bold;color:#555">📚 문제 유형 선택</p>
+        <div class="quiz-grade-row">
+          <button class="qg-btn active" onclick="pickExamType('reading',this)">🔤 음 쓰기</button>
+          <button class="qg-btn"        onclick="pickExamType('meaning',this)">💡 뜻 찾기</button>
+          <button class="qg-btn"        onclick="pickExamType('char',this)">🀄 한자 찾기</button>
+          <button class="qg-btn"        onclick="pickExamType('mixed',this)">🎲 전체 섞기</button>
+        </div>
+        <button class="quiz-start" onclick="startExam()">시작! 🚀</button>
+      </div>
+      <div id="exam-area" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="eprog-fill" style="width:0%"></div></div>
+        <div class="score-display">
+          <span id="e-num">1</span> / <span id="e-total">10</span> 번째 문제 &nbsp;|&nbsp; ⭐ <span id="e-score">0</span>점
+        </div>
+        <div style="font-size:.78em;color:#b0c8d8;text-align:center;margin-bottom:10px">📌 제112회 전국한자능력검정시험 기출</div>
+        <div class="quiz-card">
+          <div class="quiz-type-label" id="e-type-label"></div>
+          <div class="quiz-char"       id="e-char"></div>
+          <div class="quiz-prompt"     id="e-prompt"></div>
+          <div class="quiz-options"    id="e-options"></div>
+          <div class="quiz-feedback"   id="e-feedback"></div>
+          <button class="quiz-next-btn" id="e-next" onclick="nextExamQ()">다음 문제 →</button>
+        </div>
+      </div>
+      <div id="exam-result" style="display:none">
+        <div style="font-size:4em">🎉</div>
+        <div class="result-score" id="eres-score"></div>
+        <div class="result-stars" id="eres-stars"></div>
+        <div class="result-msg"   id="eres-msg"></div>
+        <button class="quiz-start" onclick="resetExam()">다시 도전!</button>
+      </div>
     </div>
   </div>
 
@@ -673,9 +715,6 @@ const G8 = [
   // ── 색깔 ──
   {char:'白',rd:'백',mn:'흰 백',  si:'하얗다, 흰색',          th:'색깔', ex:[{w:'白色',r:'백색',m:'흰색'},{w:'白花',r:'백화',m:'하얀 꽃'}]},
   {char:'靑',rd:'청',mn:'푸를 청',si:'파랗다, 푸른색',        th:'색깔', ex:[{w:'靑山',r:'청산',m:'푸른 산'},{w:'靑少年',r:'청소년',m:'어린이와 젊은이'}]},
-  // ── 가족/숫자 추가 (8급) ──
-  {char:'男',rd:'남',mn:'사내 남',si:'남자, 사내',            th:'가족', ex:[{w:'男子',r:'남자',m:'남자'},{w:'男女',r:'남녀',m:'남자와 여자'}]},
-  {char:'年',rd:'년',mn:'해 년',  si:'해, 1년',               th:'숫자', ex:[{w:'年齡',r:'연령',m:'나이'},{w:'新年',r:'신년',m:'새해'}]},
 ];
 
 const G7 = [
@@ -704,8 +743,10 @@ const G7 = [
   {char:'秋',rd:'추',mn:'가을 추',si:'가을, 수확의 계절',     th:'계절', ex:[{w:'秋天',r:'추천',m:'가을 하늘'},{w:'秋夕',r:'추석',m:'한가위'}]},
   {char:'冬',rd:'동',mn:'겨울 동',si:'겨울, 추운 계절',       th:'계절', ex:[{w:'冬天',r:'동천',m:'겨울 하늘'},{w:'冬季',r:'동계',m:'겨울철'}]},
   {char:'時',rd:'시',mn:'때 시',  si:'시간, 때',              th:'계절', ex:[{w:'時間',r:'시간',m:'흐르는 시간'},{w:'時代',r:'시대',m:'역사의 한 시기'}]},
+  {char:'年',rd:'년',mn:'해 년',  si:'해, 1년',               th:'계절', ex:[{w:'年齡',r:'연령',m:'나이'},{w:'百年',r:'백년',m:'100년'}]},
   // ── 가족 추가 ──
   {char:'子',rd:'자',mn:'아들 자',si:'아이, 아들',            th:'가족', ex:[{w:'子女',r:'자녀',m:'아들과 딸'},{w:'父子',r:'부자',m:'아버지와 아들'}]},
+  {char:'男',rd:'남',mn:'사내 남',si:'남자, 사내',            th:'가족', ex:[{w:'男子',r:'남자',m:'남자'},{w:'男女',r:'남녀',m:'남자와 여자'}]},
   {char:'老',rd:'로',mn:'늙을 로',si:'늙다, 할아버지',        th:'가족', ex:[{w:'老人',r:'노인',m:'늙은 사람'},{w:'老少',r:'노소',m:'늙은이와 젊은이'}]},
   // ── 방향 추가 ──
   {char:'上',rd:'상',mn:'위 상',  si:'위, 올라가다',          th:'방향', ex:[{w:'上下',r:'상하',m:'위와 아래'},{w:'地上',r:'지상',m:'땅 위'}]},
@@ -763,39 +804,6 @@ const G7 = [
   {char:'平',rd:'평',mn:'평평할 평',si:'평평하다, 평화롭다',  th:'덕목', ex:[{w:'平和',r:'평화',m:'평안하고 화목함'},{w:'平生',r:'평생',m:'살아있는 동안 내내'}]},
   {char:'和',rd:'화',mn:'화할 화',si:'화목하다, 화합하다',    th:'덕목', ex:[{w:'平和',r:'평화',m:'평안하고 화목함'},{w:'和合',r:'화합',m:'서로 잘 어울림'}]},
   {char:'友',rd:'우',mn:'벗 우',  si:'친구',                  th:'덕목', ex:[{w:'友人',r:'우인',m:'친구'},{w:'友情',r:'우정',m:'친구 사이의 정'}]},
-  // ── 덕목 추가 ──
-  {char:'直',rd:'직',mn:'곧을 직',si:'곧다, 올바르다',       th:'덕목', ex:[{w:'正直',r:'정직',m:'바르고 솔직함'},{w:'直接',r:'직접',m:'중간 없이 바로'}]},
-  {char:'強',rd:'강',mn:'강할 강',si:'강하다, 세다',          th:'덕목', ex:[{w:'強弱',r:'강약',m:'강하고 약함'},{w:'強力',r:'강력',m:'강한 힘'}]},
-  {char:'弱',rd:'약',mn:'약할 약',si:'약하다, 힘이 없다',    th:'덕목', ex:[{w:'強弱',r:'강약',m:'강하고 약함'},{w:'弱者',r:'약자',m:'힘없는 사람'}]},
-  // ── 생활 추가 ──
-  {char:'飯',rd:'반',mn:'밥 반',  si:'밥, 쌀밥',              th:'생활', ex:[{w:'白飯',r:'백반',m:'흰 쌀밥'},{w:'食飯',r:'식반',m:'밥을 먹음'}]},
-  {char:'肉',rd:'육',mn:'고기 육',si:'고기',                  th:'생활', ex:[{w:'肉食',r:'육식',m:'고기를 먹음'},{w:'牛肉',r:'우육',m:'소고기'}]},
-  {char:'茶',rd:'다',mn:'차 다',  si:'차, 음료',              th:'생활', ex:[{w:'綠茶',r:'녹차',m:'녹차'},{w:'茶道',r:'다도',m:'차를 마시는 예절'}]},
-  {char:'活',rd:'활',mn:'살 활',  si:'살다, 활발하다',        th:'생활', ex:[{w:'生活',r:'생활',m:'살아가기'},{w:'活動',r:'활동',m:'활발하게 움직임'}]},
-  {char:'休',rd:'휴',mn:'쉴 휴',  si:'쉬다, 쉬는 날',        th:'생활', ex:[{w:'休日',r:'휴일',m:'쉬는 날'},{w:'休息',r:'휴식',m:'쉬기'}]},
-  {char:'電',rd:'전',mn:'번개 전',si:'번개, 전기',            th:'생활', ex:[{w:'電話',r:'전화',m:'전화기'},{w:'電氣',r:'전기',m:'전기'}]},
-  {char:'動',rd:'동',mn:'움직일 동',si:'움직이다',           th:'생활', ex:[{w:'運動',r:'운동',m:'운동'},{w:'活動',r:'활동',m:'활발하게 움직임'}]},
-  {char:'音',rd:'음',mn:'소리 음',si:'소리',                  th:'생활', ex:[{w:'音樂',r:'음악',m:'음악'},{w:'音聲',r:'음성',m:'목소리'}]},
-  // ── 색깔 추가 ──
-  {char:'紅',rd:'홍',mn:'붉을 홍',si:'붉다, 빨간색',         th:'색깔', ex:[{w:'紅色',r:'홍색',m:'붉은색'},{w:'紅花',r:'홍화',m:'붉은 꽃'}]},
-  {char:'綠',rd:'록',mn:'초록 록',si:'초록색, 녹색',          th:'색깔', ex:[{w:'綠色',r:'녹색',m:'초록색'},{w:'綠茶',r:'녹차',m:'녹차'}]},
-  // ── 학습 추가 ──
-  {char:'記',rd:'기',mn:'기록할 기',si:'기록하다',            th:'학습', ex:[{w:'日記',r:'일기',m:'날마다 쓰는 글'},{w:'記錄',r:'기록',m:'기록하기'}]},
-  {char:'問',rd:'문',mn:'물을 문',si:'묻다, 질문하다',        th:'학습', ex:[{w:'問答',r:'문답',m:'묻고 답하기'},{w:'質問',r:'질문',m:'물어보기'}]},
-  {char:'分',rd:'분',mn:'나눌 분',si:'나누다, 분',            th:'학습', ex:[{w:'分數',r:'분수',m:'분수'},{w:'一分',r:'일분',m:'1분'}]},
-  {char:'科',rd:'과',mn:'과목 과',si:'과목, 과학',            th:'학습', ex:[{w:'科學',r:'과학',m:'과학'},{w:'科目',r:'과목',m:'공부 과목'}]},
-  // ── 사회 추가 ──
-  {char:'名',rd:'명',mn:'이름 명',si:'이름',                  th:'사회', ex:[{w:'名字',r:'명자',m:'이름자'},{w:'有名',r:'유명',m:'이름이 널리 알려짐'}]},
-  {char:'族',rd:'족',mn:'겨레 족',si:'겨레, 같은 민족',      th:'사회', ex:[{w:'家族',r:'가족',m:'가족'},{w:'民族',r:'민족',m:'같은 나라 사람들'}]},
-  {char:'主',rd:'주',mn:'주인 주',si:'주인, 주되다',          th:'사회', ex:[{w:'主人',r:'주인',m:'주인'},{w:'民主',r:'민주',m:'국민이 주인'}]},
-  // ── 상태 ──
-  {char:'不',rd:'불',mn:'아닐 불',si:'아니다, ~하지 않다',   th:'상태', ex:[{w:'不足',r:'부족',m:'모자람'},{w:'不可',r:'불가',m:'안 됨'}]},
-  {char:'新',rd:'신',mn:'새 신',  si:'새롭다, 새것',          th:'상태', ex:[{w:'新年',r:'신년',m:'새해'},{w:'新聞',r:'신문',m:'신문'}]},
-  {char:'重',rd:'중',mn:'무거울 중',si:'무겁다, 중요하다',   th:'상태', ex:[{w:'重要',r:'중요',m:'중요함'},{w:'體重',r:'체중',m:'몸무게'}]},
-  {char:'有',rd:'유',mn:'있을 유',si:'있다, 있음',            th:'상태', ex:[{w:'有名',r:'유명',m:'유명함'},{w:'所有',r:'소유',m:'가지고 있음'}]},
-  {char:'多',rd:'다',mn:'많을 다',si:'많다',                  th:'상태', ex:[{w:'多數',r:'다수',m:'많은 수'},{w:'多樣',r:'다양',m:'여러 가지'}]},
-  {char:'自',rd:'자',mn:'스스로 자',si:'스스로, 자기',       th:'상태', ex:[{w:'自動車',r:'자동차',m:'자동차'},{w:'自由',r:'자유',m:'자유롭게 하기'}]},
-  {char:'入',rd:'입',mn:'들 입',  si:'들어가다',              th:'상태', ex:[{w:'入口',r:'입구',m:'들어가는 곳'},{w:'入學',r:'입학',m:'학교에 들어감'}]},
 ];
 
 /* ============================================================
@@ -815,7 +823,7 @@ let qOpts       = [];  // current question's options array
 /* ============================================================
    HELPERS
    ============================================================ */
-const themeEmoji = {숫자:'🔢',자연:'🌿',가족:'👨‍👩‍👧',방향:'🧭',학습:'📚',사회:'🏘️',계절:'🍂',신체:'💪',색깔:'🎨',생활:'🏠',크기:'📏',덕목:'⭐',상태:'🔄'};
+const themeEmoji = {숫자:'🔢',자연:'🌿',가족:'👨‍👩‍👧',방향:'🧭',학습:'📚',사회:'🏘️',계절:'🍂',신체:'💪',색깔:'🎨',생활:'🏠',크기:'📏',덕목:'⭐'};
 
 function getData(grade) {
   if (grade === 0) return [...G8, ...G7];
@@ -839,6 +847,7 @@ function showSection(id, btn) {
   btn.classList.add('active');
   if (id === 'list')  renderList();
   if (id === 'study') renderStudy();
+  if (id === 'exam')  resetExam();
 }
 
 /* ============================================================
@@ -1100,6 +1109,172 @@ function showResult() {
 function resetQuiz() {
   document.getElementById('quiz-result').style.display = 'none';
   document.getElementById('quiz-setup').style.display  = 'block';
+}
+
+/* ============================================================
+   EXAM - 기출문제 (제112회 전국한자능력검정시험)
+   ============================================================ */
+
+// 유형 A: 漢字語의 音(음)을 쓰기 → 4지선다
+const EXAM_READING = [
+  { sentence:'수험생들은 고사장에 入室하시기 바랍니다.', word:'入室', answer:'입실', opts:['입실','출실','입학','퇴실'] },
+  { sentence:'休日 오후에 잠만 자면 시간이 아깝지 않습니까?', word:'休日', answer:'휴일', opts:['휴일','공일','평일','주일'] },
+  { sentence:'준영이는 여름 방학에 땅콩 農場에서 삼촌 일을 돕습니다.', word:'農場', answer:'농장', opts:['농장','농사','농업','장원'] },
+  { sentence:'그녀는 한식부터 일식, 中食까지 못하는 요리가 없습니다.', word:'中食', answer:'중식', opts:['중식','한식','양식','일식'] },
+  { sentence:'그녀는 작은 쪽지에 住所를 적어 주었습니다.', word:'住所', answer:'주소', opts:['주소','거소','장소','처소'] },
+  { sentence:'국경일이어서 건물마다 國旗가 게양되어 있습니다.', word:'國旗', answer:'국기', opts:['국기','국화','국가','국민'] },
+  { sentence:'이 과자는 하나에 五百 원씩 합니다.', word:'五百', answer:'오백', opts:['오백','오십','육백','사백'] },
+  { sentence:'시험지를 넣은 상자를 二重으로 봉하고 도장을 찍었습니다.', word:'二重', answer:'이중', opts:['이중','삼중','일중','중이'] },
+  { sentence:'난초는 대표적인 관상용 植物입니다.', word:'植物', answer:'식물', opts:['식물','동물','생물','초목'] },
+  { sentence:'수희는 씩 웃으며 고개를 左右로 흔들었습니다.', word:'左右', answer:'좌우', opts:['좌우','상하','동서','남북'] },
+  { sentence:'언니는 형부에게 아이를 맡기고 外出했습니다.', word:'外出', answer:'외출', opts:['외출','외국','입출','출입'] },
+  { sentence:'구조 요원들이 신속한 구조 活動을 벌이고 있습니다.', word:'活動', answer:'활동', opts:['활동','행동','운동','노동'] },
+  { sentence:'生命을 유지하는 데 가장 긴요한 것은 물입니다.', word:'生命', answer:'생명', opts:['생명','생활','생물','목숨'] },
+  { sentence:'그녀는 저녁이면 男便과 해변을 거닐다 오곤 합니다.', word:'男便', answer:'남편', opts:['남편','남자','부인','처남'] },
+  { sentence:'한식에는 祖上의 산소를 찾아 성묘를 합니다.', word:'祖上', answer:'조상', opts:['조상','부모','선생','선조'] },
+];
+
+// 유형 B: 한자의 뜻과 음 찾기 → 4지선다
+const EXAM_MEANING = [
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'農', answer:'농사 농', opts:['농사 농','밭 전','마을 촌','시장 시'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'靑', answer:'푸를 청', opts:['푸를 청','붉을 적','흰 백','검을 흑'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'祖', answer:'할아버지 조', opts:['할아버지 조','아비 부','어미 모','형 형'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'命', answer:'목숨 명', opts:['목숨 명','살 생','죽을 사','몸 신'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'植', answer:'심을 식', opts:['심을 식','풀 초','나무 목','꽃 화'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'活', answer:'살 활', opts:['살 활','움직일 동','쉴 휴','일할 노'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'萬', answer:'일만 만', opts:['일만 만','일천 천','일백 백','열 십'] },
+  { question:'다음 漢字의 訓(뜻)과 音(음)이 바른 것은?', char:'住', answer:'살 주', opts:['살 주','갈 거','올 래','머물 류'] },
+];
+
+// 유형 C: 뜻에 맞는 漢字語 찾기 → 4지선다
+const EXAM_CHAR = [
+  { question:'"나라를 사랑함"을 뜻하는 漢字語는?', answer:'愛國', opts:['愛國','愛人','國民','民主'] },
+  { question:'"동쪽과 서쪽"을 뜻하는 漢字語는?', answer:'東西', opts:['東西','南北','上下','左右'] },
+  { question:'"아버지와 어머니"를 뜻하는 漢字語는?', answer:'父母', opts:['父母','兄弟','祖父','父子'] },
+  { question:'"배우는 사람"을 뜻하는 漢字語는?', answer:'學生', opts:['學生','先生','校長','敎師'] },
+  { question:'"나라의 사람들"을 뜻하는 漢字語는?', answer:'國民', opts:['國民','民主','民族','百姓'] },
+  { question:'"가르치고 기름"을 뜻하는 漢字語는?', answer:'敎育', opts:['敎育','學習','訓練','指導'] },
+  { question:'"봄, 여름, 가을, 겨울"을 통틀어 이르는 말은?', answer:'四季', opts:['四季','四方','四色','四面'] },
+  { question:'"평안하고 화목함"을 뜻하는 漢字語는?', answer:'平和', opts:['平和','和合','安心','安全'] },
+];
+
+let examType = 'reading';
+let examQuestions = [];
+let eIdx = 0, eScore = 0, eOpts = [];
+
+function pickExamType(t, btn) {
+  examType = t;
+  btn.parentElement.querySelectorAll('.qg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildExamQuestions() {
+  let pool = [];
+  if (examType === 'reading' || examType === 'mixed') {
+    pool.push(...EXAM_READING.map(q => ({ ...q, type: 'reading' })));
+  }
+  if (examType === 'meaning' || examType === 'mixed') {
+    pool.push(...EXAM_MEANING.map(q => ({ ...q, type: 'meaning' })));
+  }
+  if (examType === 'char' || examType === 'mixed') {
+    pool.push(...EXAM_CHAR.map(q => ({ ...q, type: 'char' })));
+  }
+  if (examType === 'reading') pool = EXAM_READING.map(q => ({ ...q, type: 'reading' }));
+  if (examType === 'meaning') pool = EXAM_MEANING.map(q => ({ ...q, type: 'meaning' }));
+  if (examType === 'char')    pool = EXAM_CHAR.map(q => ({ ...q, type: 'char' }));
+
+  return shuffle(pool).slice(0, 10).map(q => {
+    const opts = shuffle([...q.opts]);
+    return { ...q, opts };
+  });
+}
+
+function startExam() {
+  examQuestions = buildExamQuestions();
+  eIdx = 0; eScore = 0;
+  document.getElementById('exam-setup').style.display  = 'none';
+  document.getElementById('exam-result').style.display = 'none';
+  document.getElementById('exam-area').style.display   = 'block';
+  document.getElementById('e-total').textContent = examQuestions.length;
+  renderExamQ();
+}
+
+function renderExamQ() {
+  const q = examQuestions[eIdx];
+  const pct = (eIdx / examQuestions.length) * 100;
+  document.getElementById('eprog-fill').style.width    = pct + '%';
+  document.getElementById('e-num').textContent         = eIdx + 1;
+  document.getElementById('e-score').textContent       = eScore;
+  document.getElementById('e-feedback').textContent    = '';
+  document.getElementById('e-next').style.display      = 'none';
+
+  if (q.type === 'reading') {
+    document.getElementById('e-type-label').textContent = '밑줄 친 漢字語의 음(소리)은?';
+    const sent = q.sentence.replace(q.word, `<u style="color:var(--sky);font-weight:bold">${q.word}</u>`);
+    document.getElementById('e-char').innerHTML  = `<div style="font-size:.95em;line-height:1.7;color:var(--text)">${sent}</div>`;
+    document.getElementById('e-prompt').textContent = `"${q.word}"를 어떻게 읽을까요?`;
+  } else if (q.type === 'meaning') {
+    document.getElementById('e-type-label').textContent = q.question;
+    document.getElementById('e-char').style.fontSize = '2em';
+    document.getElementById('e-char').textContent  = q.char;
+    document.getElementById('e-prompt').textContent = '訓(뜻)과 音(음)이 바른 것은?';
+  } else {
+    document.getElementById('e-type-label').textContent = '알맞은 漢字語를 고르세요';
+    document.getElementById('e-char').style.fontSize = '1em';
+    document.getElementById('e-char').textContent  = q.question;
+    document.getElementById('e-prompt').textContent = '';
+  }
+
+  eOpts = q.opts;
+  document.getElementById('e-options').innerHTML = q.opts.map((opt, i) =>
+    `<button class="quiz-option ${q.type === 'char' ? 'char-opt' : ''}"
+             onclick="checkExamAns(${i})">${opt}</button>`
+  ).join('');
+}
+
+function checkExamAns(idx) {
+  const q   = examQuestions[eIdx];
+  const sel = eOpts[idx];
+  document.querySelectorAll('#e-options .quiz-option').forEach(b => b.disabled = true);
+  const btns = document.querySelectorAll('#e-options .quiz-option');
+  if (sel === q.answer) {
+    btns[idx].classList.add('correct', 'anim-bounce');
+    document.getElementById('e-feedback').textContent = '🎉 정답이에요!';
+    eScore += 10;
+    document.getElementById('e-score').textContent = eScore;
+  } else {
+    btns[idx].classList.add('wrong', 'anim-shake');
+    document.getElementById('e-feedback').textContent = `😅 정답은 "${q.answer}"`;
+    btns.forEach(b => { if (b.textContent.trim() === q.answer) b.classList.add('correct'); });
+  }
+  document.getElementById('e-next').style.display = 'block';
+}
+
+function nextExamQ() {
+  eIdx++;
+  if (eIdx >= examQuestions.length) showExamResult();
+  else renderExamQ();
+}
+
+function showExamResult() {
+  document.getElementById('exam-area').style.display   = 'none';
+  document.getElementById('exam-result').style.display = 'block';
+  const max = examQuestions.length * 10;
+  const pct = (eScore / max) * 100;
+  document.getElementById('eres-score').textContent = `${eScore}점 / ${max}점`;
+  let stars, msg;
+  if      (pct >= 90) { stars = '⭐⭐⭐'; msg = '완벽해요! 시험 합격이에요! 🏆'; }
+  else if (pct >= 70) { stars = '⭐⭐';   msg = '잘했어요! 조금만 더 공부해봐요! 💪'; }
+  else if (pct >= 50) { stars = '⭐';     msg = '열심히 공부하면 더 잘할 수 있어요! 📚'; }
+  else                { stars = '🌱';     msg = '다시 한 번 도전해봐요! 할 수 있어요! 🎯'; }
+  document.getElementById('eres-stars').textContent = stars;
+  document.getElementById('eres-msg').textContent   = msg;
+}
+
+function resetExam() {
+  document.getElementById('exam-result').style.display = 'none';
+  document.getElementById('exam-area').style.display   = 'none';
+  document.getElementById('exam-setup').style.display  = 'block';
 }
 
 /* ── Init ── */
